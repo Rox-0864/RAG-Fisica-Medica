@@ -11,8 +11,8 @@ Coordinates the full RAG pipeline:
 import logging
 from typing import List, Tuple, Dict, Any
 
-from langchain.chains import ConversationalRetrievalChain
-from langchain.prompts import PromptTemplate
+from langchain_classic.chains import ConversationalRetrievalChain
+from langchain_core.prompts import PromptTemplate
 
 from .vector_store import load_vector_store
 from .embeddings import get_embeddings
@@ -22,7 +22,7 @@ from .prompts import SYSTEM_TEMPLATE
 logger = logging.getLogger(__name__)
 
 # Number of chunks to retrieve per query
-RETRIEVAL_K = 5
+RETRIEVAL_K = 10
 
 
 def create_rag_chain():
