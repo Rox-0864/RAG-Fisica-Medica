@@ -141,7 +141,7 @@ El agente está desplegado en Google Cloud y accesible públicamente:
 
 **http://34.171.92.191:8501**
 
-> Nota: Las respuestas toman 1-2 minutos porque el modelo corre en CPU sin GPU.
+> Nota: Las respuestas toman 3-4 minutos porque el modelo corre en CPU sin GPU.
 
 ---
 
