@@ -13,7 +13,7 @@ import pdfplumber
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__"Essential Physics of Medical Imaging"__)
 
 # Chunking parameters
 CHUNK_SIZE = 1000

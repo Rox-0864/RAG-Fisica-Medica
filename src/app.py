@@ -9,9 +9,14 @@ On subsequent runs, loads the existing vector store instantly.
 """
 
 import logging
+import sys
 from pathlib import Path
 
 import streamlit as st
+
+# Add project root to Python path so 'src' package is importable
+# when running via 'streamlit run src/app.py'
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.document_loader import load_pdf
 from src.vector_store import (
