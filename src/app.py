@@ -40,7 +40,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 st.set_page_config(
-    page_title="RAG Radiodiagnostico",
+    page_title="La Fisica de las Imagenes Medicas",
     page_icon="🩻",
     layout="wide",
 )
@@ -144,11 +144,6 @@ def initialize_or_load_store() -> bool:
 def render_sidebar():
     """Render the sidebar with configuration info."""
     with st.sidebar:
-        # Banner image
-        banner_path = ASSETS_DIR / "radiodiagnostico.jpeg"
-        if banner_path.exists():
-            st.image(str(banner_path), use_container_width=True)
-
         st.title("Configuracion")
 
         # Model selector
@@ -207,8 +202,15 @@ def main():
     init_session_state()
     render_sidebar()
 
-    st.title("RAG Radiodiagnostico")
-    st.caption("Agente de IA para consultas sobre fisica medica e imagenologia")
+    # Header with image and title
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        banner_path = ASSETS_DIR / "radiodiagnostico.jpeg"
+        if banner_path.exists():
+            st.image(str(banner_path), use_container_width=True)
+    with col2:
+        st.title("La Fisica de las Imagenes Medicas")
+        st.caption("Agente de IA para consultas sobre fisica medica e imagenologia diagnostica")
 
     # Initialize or load the vector store
     if not st.session_state.chain_ready:
