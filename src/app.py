@@ -8,25 +8,20 @@ On first run, indexes the PDF and creates the vector store.
 On subsequent runs, loads the existing vector store instantly.
 """
 
-import os
-import sys
 import logging
 from pathlib import Path
 
 import streamlit as st
 
-# Add src to path so imports work
-sys.path.insert(0, str(Path(__file__).parent))
-
-from document_loader import load_pdf, print_stats
-from vector_store import (
+from src.document_loader import load_pdf
+from src.vector_store import (
     initialize_vector_store,
     load_vector_store,
     store_exists,
 )
-from embeddings import get_embeddings
-from llm import get_llm
-from rag_chain import create_rag_chain, format_chat_history, query_rag
+from src.embeddings import get_embeddings
+from src.llm import get_llm
+from src.rag_chain import create_rag_chain, format_chat_history, query_rag
 
 # ---------------------------------------------------------------------------
 # Configuration
