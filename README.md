@@ -1,4 +1,4 @@
-# AI-RAG-Radiodiagnostico
+# RAG Física Médica
 
 Agente de inteligencia artificial basado en RAG (Retrieval-Augmented Generation) capaz de
 responder preguntas sobre física médica e imagenología utilizando como fuente de conocimiento
@@ -156,8 +156,8 @@ El agente está desplegado en Google Cloud y accesible públicamente:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone git@github.com:Rox-0864/AI-RAG-Radiodiagnostico.git
-cd AI-RAG-Radiodiagnostico
+git clone git@github.com:Rox-0864/RAG-Fisica-Medica.git
+cd RAG-Fisica-Medica
 ```
 
 ### 2. Instalar Ollama y descargar el modelo

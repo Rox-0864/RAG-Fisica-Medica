@@ -170,7 +170,7 @@ def render_sidebar():
         )
 
         st.markdown("---")
-        st.caption("Repositorio: [GitHub](https://github.com/Rox-0864/AI-RAG-Radiodiagnostico)")
+        st.caption("Repositorio: [GitHub](https://github.com/Rox-0864/RAG-Fisica-Medica)")
 
 
 # ---------------------------------------------------------------------------
