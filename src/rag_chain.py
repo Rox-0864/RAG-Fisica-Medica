@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 RETRIEVAL_K = 10
 
 
-def create_rag_chain():
+def create_rag_chain(model: str = "llama3.2:3b"):
     """
     Create and return a configured RAG chain.
 
@@ -36,11 +36,14 @@ def create_rag_chain():
         - Formats prompt with context, history, and question
         - Generates answer via LLM
 
+    Args:
+        model: Ollama model name (e.g. "llama3.2:3b", "llama3.1:8b").
+
     Returns:
         Configured ConversationalRetrievalChain ready for .invoke()
     """
     # Load components
-    llm = get_llm()
+    llm = get_llm(model=model)
     embedding_model = get_embeddings()
     vector_store = load_vector_store(embedding_model=embedding_model)
 

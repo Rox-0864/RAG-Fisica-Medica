@@ -20,7 +20,7 @@ from src.vector_store import (
     store_exists,
 )
 from src.embeddings import get_embeddings
-from src.llm import get_llm
+from src.llm import get_llm, list_available_models
 from src.rag_chain import create_rag_chain, format_chat_history, query_rag
 
 # ---------------------------------------------------------------------------
@@ -136,10 +136,30 @@ def render_sidebar():
     with st.sidebar:
         st.title("Configuracion")
 
+        # Model selector
+        st.subheader("Modelo LLM")
+        models = list_available_models()
+        model_names = list(models.keys())
+        default_idx = model_names.index("llama3.2:3b") if "llama3.2:3b" in model_names else 0
+
+        selected_model = st.selectbox(
+            "Selecciona el modelo",
+            options=model_names,
+            index=default_idx,
+            format_func=lambda m: f"{m} — {models[m].split(' — ')[0]}",
+            key="selected_model",
+        )
+        st.caption(models[selected_model].split(" — ")[1])
+
+        # Reload chain button when model changes
+        if st.button("Aplicar cambio de modelo"):
+            st.session_state.chain_ready = False
+            st.session_state.chain = None
+            st.rerun()
+
         st.markdown("---")
-        st.subheader("Modelo")
-        st.text("LLM: llama3.2:3b (Ollama)")
-        st.text("Embedding: all-MiniLM-L6-v2")
+        st.subheader("Embedding")
+        st.text("all-MiniLM-L6-v2 (CPU)")
         st.text("Vector Store: ChromaDB")
 
         st.markdown("---")
@@ -184,9 +204,10 @@ def main():
 
             # Create the RAG chain
             try:
-                st.session_state.chain = create_rag_chain()
+                model = st.session_state.get("selected_model", "llama3.2:3b")
+                st.session_state.chain = create_rag_chain(model=model)
                 st.session_state.chain_ready = True
-                logger.info("RAG chain initialized successfully")
+                logger.info(f"RAG chain initialized with model: {model}")
             except Exception as e:
                 st.error(f"Error al inicializar el agente: {e}")
                 logger.exception("Chain initialization failed")
