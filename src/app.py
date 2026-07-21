@@ -60,13 +60,13 @@ def init_session_state():
         "messages": [{
             "role": "bot",
             "content": (
-                "Hola. Soy un agente especializado en fisica medica e "
-                "imagenologia diagnostica. Puedo responder tus preguntas "
-                "basandome en el libro **Essential Physics of Medical Imaging**.\n\n"
-                "El libro esta en ingles, pero yo respondo en espanol. "
-                "Podes preguntarme sobre rayos X, CT, MRI, ultrasonido, "
-                "medicina nuclear, proteccion radiologica, y mas.\n\n"
-                "Que te gustaria saber?"
+                "Hola. Soy un agente especializado en física médica e "
+                "imagenología diagnóstica. Puedo responder tus preguntas "
+                "basándome en el libro **Essential Physics of Medical Imaging**.\n\n"
+                "El libro está en inglés, pero yo respondo en español. "
+                "Podés preguntarme sobre rayos X, CT, MRI, ultrasonido, "
+                "medicina nuclear, protección radiológica, y más.\n\n"
+                "¿Qué te gustaría saber?"
             ),
         }],
         "chain_ready": False,
@@ -144,32 +144,12 @@ def initialize_or_load_store() -> bool:
 def render_sidebar():
     """Render the sidebar with configuration info."""
     with st.sidebar:
-        st.title("Configuracion")
-
-        # Model selector
-        st.subheader("Modelo LLM")
-        models = list_available_models()
-        model_names = list(models.keys())
-        default_idx = model_names.index("llama3.2:3b") if "llama3.2:3b" in model_names else 0
-
-        selected_model = st.selectbox(
-            "Selecciona el modelo",
-            options=model_names,
-            index=default_idx,
-            format_func=lambda m: f"{m} — {models[m].split(' — ')[0]}",
-            key="selected_model",
-        )
-        st.caption(models[selected_model].split(" — ")[1])
-
-        # Reload chain button when model changes
-        if st.button("Aplicar cambio de modelo"):
-            st.session_state.chain_ready = False
-            st.session_state.chain = None
-            st.rerun()
+        st.title("Configuración")
 
         st.markdown("---")
-        st.subheader("Embedding")
-        st.text("all-MiniLM-L6-v2 (CPU)")
+        st.subheader("Modelo")
+        st.text("LLM: llama3.2:3b (Ollama)")
+        st.text("Embedding: all-MiniLM-L6-v2 (CPU)")
         st.text("Vector Store: ChromaDB")
 
         st.markdown("---")
@@ -177,7 +157,7 @@ def render_sidebar():
         if PDF_PATH.exists():
             size_mb = PDF_PATH.stat().st_size / 1e6
             st.text(f"PDF: {PDF_PATH.name}")
-            st.text(f"Tamano: {size_mb:.1f} MB")
+            st.text(f"Tamaño: {size_mb:.1f} MB")
         else:
             st.warning("PDF no encontrado en data/")
 
@@ -186,7 +166,7 @@ def render_sidebar():
         st.markdown(
             "Agente RAG 100% local y gratuito. "
             "No utiliza APIs externas de pago. "
-            "Todo el procesamiento ocurre en tu maquina."
+            "Todo el procesamiento ocurre en tu máquina."
         )
 
         st.markdown("---")
@@ -203,14 +183,20 @@ def main():
     render_sidebar()
 
     # Header with image and title
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1, 3])
     with col1:
         banner_path = ASSETS_DIR / "radiodiagnostico.jpeg"
         if banner_path.exists():
             st.image(str(banner_path), use_container_width=True)
     with col2:
-        st.title("La Fisica de las Imagenes Medicas")
-        st.caption("Agente de IA para consultas sobre fisica medica e imagenologia diagnostica")
+        st.title("La Física de las Imágenes Médicas")
+        st.markdown(
+            "<h4 style='margin-top: 0; color: #666;'>"
+            "Agente de IA para consultas sobre física médica "
+            "e imagenología diagnóstica"
+            "</h4>",
+            unsafe_allow_html=True,
+        )
 
     # Initialize or load the vector store
     if not st.session_state.chain_ready:
@@ -221,10 +207,9 @@ def main():
 
             # Create the RAG chain
             try:
-                model = st.session_state.get("selected_model", "llama3.2:3b")
-                st.session_state.chain = create_rag_chain(model=model)
+                st.session_state.chain = create_rag_chain(model="llama3.2:3b")
                 st.session_state.chain_ready = True
-                logger.info(f"RAG chain initialized with model: {model}")
+                logger.info("RAG chain initialized")
             except Exception as e:
                 st.error(f"Error al inicializar el agente: {e}")
                 logger.exception("Chain initialization failed")
