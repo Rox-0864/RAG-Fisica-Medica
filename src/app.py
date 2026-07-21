@@ -43,6 +43,7 @@ st.set_page_config(
 
 # PDF path — relative to project root
 PROJECT_ROOT = Path(__file__).parent.parent
+ASSETS_DIR = PROJECT_ROOT / "assets"
 PDF_PATH = PROJECT_ROOT / "data" / "Essential Physics Medical Imaging.pdf"
 
 # ---------------------------------------------------------------------------
@@ -139,6 +140,11 @@ def initialize_or_load_store() -> bool:
 def render_sidebar():
     """Render the sidebar with configuration info."""
     with st.sidebar:
+        # Banner image
+        banner_path = ASSETS_DIR / "radiodiagnostico.jpeg"
+        if banner_path.exists():
+            st.image(str(banner_path), use_container_width=True)
+
         st.title("Configuracion")
 
         # Model selector
