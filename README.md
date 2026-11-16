@@ -59,10 +59,10 @@ dos fases:
                            │
                            ▼
                     ┌──────────────┐
-                    │ Embeddings   │
-                    │ all-MiniLM   │
-                    │ (384 dims)   │
-                    └──────┬───────┘
+                     │  Embeddings   │
+                     │ multilingual  │
+                     │ (384 dims)    │
+                     └──────┬───────┘
                            │
                            ▼
                     ┌──────────────┐
@@ -82,8 +82,8 @@ dos fases:
           │ embedding
           ▼
    ┌─────────────┐     ┌──────────────┐
-   │ Búsqueda    │────▶│  ChromaDB    │
-   │ semántica   │     │ (top K=5)    │
+    │ Búsqueda    │────▶│  ChromaDB    │
+    │ semántica   │     │ (top K=8)    │
    └──────┬──────┘     └──────────────┘
           │ chunks relevantes (inglés)
           ▼
@@ -95,8 +95,8 @@ dos fases:
           │ context + question + chat history
           ▼
    ┌─────────────┐
-   │  Ollama     │
-   │ llama3.2:3b │
+    │  Ollama     │
+    │ llama3.1:8b │
    └──────┬──────┘
           │
           ▼
@@ -111,8 +111,9 @@ dos fases:
 ```
 src/
 ├── app.py               # Interfaz Streamlit (chat UI)
+├── config.py            # Configuración central (lee .env)
 ├── document_loader.py   # Extraccion PDF + chunking
-├── embeddings.py        # Wrapper HuggingFace (local)
+├── embeddings.py        # Wrapper HuggingFace (local, GPU/CPU auto)
 ├── vector_store.py      # Gestion ChromaDB (crear/cargar)
 ├── llm.py               # Interfaz Ollama
 ├── rag_chain.py         # Orquestacion retrieval + generacion
@@ -125,13 +126,13 @@ src/
 
 | Componente | Tecnologia | Descripcion |
 |------------|------------|-------------|
-| **LLM** | [Ollama](https://ollama.com) + `llama3.2:3b` | Modelo de lenguaje de 3B parametros, ejecutado localmente. Excelente rendimiento multilingue. |
+| **LLM** | [Ollama](https://ollama.com) + `llama3.1:8b` | Modelo de lenguaje de 8B parametros, ejecutado localmente. Excelente rendimiento multilingue. |
 | **Embeddings** | [Sentence Transformers](https://sbert.net) + `paraphrase-multilingual-MiniLM-L12-v2` | Modelo multilingüe de 470MB, 384 dimensiones. Alinea español e inglés en el mismo espacio semántico. |
 | **Vector Store** | [ChromaDB](https://trychroma.com) | Base de datos vectorial open-source, persistencia en disco. |
 | **PDF Processing** | [pdfplumber](https://github.com/jsvine/pdfplumber) | Extraccion de texto y tablas desde PDFs con alta precision. |
 | **Orchestration** | [LangChain](https://langchain.com) | Framework para construir cadenas RAG. |
 | **UI** | [Streamlit](https://streamlit.io) | Interfaz web interactiva con componentes de chat. |
-| **Deploy** | [Google Cloud](https://cloud.google.com) | VM e2-standard-4 (4 vCPU, 16GB RAM) en us-central1. |
+| **Deploy** | [Google Cloud](https://cloud.google.com) | VM con GPU NVIDIA L4 (24GB VRAM) en us-central1. |
 
 ---
 
@@ -141,7 +142,8 @@ El agente está desplegado en Google Cloud y accesible públicamente:
 
 **http://34.171.92.191:8501**
 
-> Nota: Las respuestas toman 3-4 minutos porque el modelo corre en CPU sin GPU.
+> Nota: Los embeddings corren en GPU NVIDIA L4, y el LLM (llama3.1:8b) en
+> Ollama. La deteccion de GPU/CPU es automatica vía la variable `EMBEDDING_DEVICE`.
 
 ---
 
@@ -167,7 +169,7 @@ cd RAG-Fisica-Medica
 curl -fsSL https://ollama.com/install.sh | sh
 
 # Descargar el modelo de lenguaje
-ollama pull llama3.2:3b
+ollama pull llama3.1:8b
 
 # Verificar que Ollama esta corriendo
 ollama serve
@@ -189,6 +191,11 @@ cp .env.example .env
 # Editar .env si es necesario (los valores por defecto funcionan)
 ```
 
+Toda la configuracion se lee desde `.env` mediante `src/config.py` (una sola
+fuente de verdad): modelo de Ollama, modelo de embeddings, tamaño de chunks,
+`RETRIEVAL_K`, y la ruta del vector store. La variable `EMBEDDING_DEVICE=auto`
+detecta automáticamente si hay GPU; forzala a `cpu` o `cuda` si hace falta.
+
 ### 5. Colocar el documento PDF
 
 ```bash
@@ -205,6 +212,18 @@ streamlit run src/app.py
 La primera ejecucion indexara automaticamente el documento (esto toma entre 2 y 5 minutos
 dependiendo del hardware). Las ejecuciones posteriores cargaran el vector store desde disco
 de forma instantanea.
+
+---
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+Los tests cubren la lógica pura del proyecto: carga de configuración, chunking
+del documento, formateo del historial de chat y la plantilla del prompt.
 
 ---
 
