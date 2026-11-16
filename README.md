@@ -96,7 +96,7 @@ dos fases:
           ▼
    ┌─────────────┐
     │  Ollama     │
-    │ llama3.1:8b │
+    │ llama3.2:3b │
    └──────┬──────┘
           │
           ▼
@@ -126,13 +126,13 @@ src/
 
 | Componente | Tecnologia | Descripcion |
 |------------|------------|-------------|
-| **LLM** | [Ollama](https://ollama.com) + `llama3.1:8b` | Modelo de lenguaje de 8B parametros, ejecutado localmente. Excelente rendimiento multilingue. |
+| **LLM** | [Ollama](https://ollama.com) + `llama3.2:3b` (CPU) / `llama3.1:8b` (GPU) | Modelo de lenguaje ejecutado localmente. `3b` liviano para CPU, `8b` más preciso para GPU. |
 | **Embeddings** | [Sentence Transformers](https://sbert.net) + `paraphrase-multilingual-MiniLM-L12-v2` | Modelo multilingüe de 470MB, 384 dimensiones. Alinea español e inglés en el mismo espacio semántico. |
 | **Vector Store** | [ChromaDB](https://trychroma.com) | Base de datos vectorial open-source, persistencia en disco. |
 | **PDF Processing** | [pdfplumber](https://github.com/jsvine/pdfplumber) | Extraccion de texto y tablas desde PDFs con alta precision. |
 | **Orchestration** | [LangChain](https://langchain.com) | Framework para construir cadenas RAG. |
 | **UI** | [Streamlit](https://streamlit.io) | Interfaz web interactiva con componentes de chat. |
-| **Deploy** | [Google Cloud](https://cloud.google.com) | VM con GPU NVIDIA L4 (24GB VRAM) en us-central1. |
+| **Deploy** | [Google Cloud](https://cloud.google.com) | VM `e2-standard-4` (4 vCPU, 16GB RAM) en us-central1 — CPU, sin cuota de GPU. |
 
 ---
 
@@ -142,8 +142,9 @@ El agente está desplegado en Google Cloud y accesible públicamente:
 
 **http://34.171.92.191:8501**
 
-> Nota: Los embeddings corren en GPU NVIDIA L4, y el LLM (llama3.1:8b) en
-> Ollama. La deteccion de GPU/CPU es automatica vía la variable `EMBEDDING_DEVICE`.
+> Nota: la demo corre en CPU (`e2-standard-4`) con el modelo `llama3.2:3b`, por lo
+> que las respuestas toman 3-4 minutos. Con una GPU (L4/T4) podés usar
+> `llama3.1:8b` para respuestas más rápidas y precisas.
 
 ---
 
@@ -169,7 +170,9 @@ cd RAG-Fisica-Medica
 curl -fsSL https://ollama.com/install.sh | sh
 
 # Descargar el modelo de lenguaje
-ollama pull llama3.1:8b
+#   CPU (sin GPU) → llama3.2:3b (liviano, ~3-4 min/respuesta)
+#   GPU (L4/T4)   → llama3.1:8b (rápido, más preciso)
+ollama pull llama3.2:3b
 
 # Verificar que Ollama esta corriendo
 ollama serve
@@ -188,7 +191,8 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# Editar .env si es necesario (los valores por defecto funcionan)
+# El modelo por defecto es llama3.1:8b. En una máquina sin GPU, cambiá a:
+#   OLLAMA_MODEL=llama3.2:3b
 ```
 
 Toda la configuracion se lee desde `.env` mediante `src/config.py` (una sola
