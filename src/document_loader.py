@@ -13,12 +13,28 @@ import pdfplumber
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
+from .config import CHUNK_OVERLAP, CHUNK_SIZE
+
 logger = logging.getLogger(__name__)
 
-# Chunking parameters
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
+# Chunk separators, ordered by preference.
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
+
+
+def split_into_chunks(text: str) -> List[str]:
+    """
+    Split a single page's text into overlapping chunks.
+
+    Uses the configured chunk size/overlap (see src/config.py). Returns
+    only non-empty chunks.
+    """
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
+        separators=SEPARATORS,
+        length_function=len,
+    )
+    return [chunk for chunk in text_splitter.split_text(text) if chunk.strip()]
 
 
 def load_pdf(file_path: str) -> List[Document]:
@@ -88,21 +104,11 @@ def load_pdf(file_path: str) -> List[Document]:
     logger.info(f"Extracted text from {len(pages_data)} pages")
 
     # Split into overlapping chunks
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP,
-        separators=SEPARATORS,
-        length_function=len,
-    )
-
     documents = []
     for page_data in pages_data:
-        chunks = text_splitter.split_text(page_data["text"])
+        chunks = split_into_chunks(page_data["text"])
 
         for chunk in chunks:
-            if not chunk.strip():
-                continue
-
             doc = Document(
                 page_content=chunk,
                 metadata={

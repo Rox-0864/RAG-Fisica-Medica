@@ -18,14 +18,12 @@ from .vector_store import load_vector_store
 from .embeddings import get_embeddings
 from .llm import get_llm
 from .prompts import SYSTEM_TEMPLATE
+from .config import OLLAMA_MODEL, RETRIEVAL_K
 
 logger = logging.getLogger(__name__)
 
-# Number of chunks to retrieve per query
-RETRIEVAL_K = 10
 
-
-def create_rag_chain(model: str = "llama3.2:3b"):
+def create_rag_chain(model: str = OLLAMA_MODEL):
     """
     Create and return a configured RAG chain.
 

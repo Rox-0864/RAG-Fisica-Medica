@@ -31,6 +31,7 @@ from src.vector_store import (
 from src.embeddings import get_embeddings
 from src.llm import get_llm, list_available_models
 from src.rag_chain import create_rag_chain, format_chat_history, query_rag
+from src.config import EMBEDDING_MODEL, OLLAMA_MODEL, resolve_embedding_device
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -148,8 +149,11 @@ def render_sidebar():
 
         st.markdown("---")
         st.subheader("Modelo")
-        st.text("LLM: llama3.2:3b (Ollama)")
-        st.text("Embedding: all-MiniLM-L6-v2 (CPU)")
+        device = resolve_embedding_device()
+        device_label = "GPU (CUDA)" if device == "cuda" else "CPU"
+        st.text(f"LLM: {OLLAMA_MODEL} (Ollama)")
+        st.text(f"Ejecución: {device_label}")
+        st.text(f"Embedding: {EMBEDDING_MODEL.split('/')[-1]}")
         st.text("Vector Store: ChromaDB")
 
         st.markdown("---")
@@ -207,7 +211,7 @@ def main():
 
             # Create the RAG chain
             try:
-                st.session_state.chain = create_rag_chain(model="llama3.2:3b")
+                st.session_state.chain = create_rag_chain(model=OLLAMA_MODEL)
                 st.session_state.chain_ready = True
                 logger.info("RAG chain initialized")
             except Exception as e:

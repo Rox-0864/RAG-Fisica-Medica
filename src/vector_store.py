@@ -6,7 +6,6 @@ The store is created once during initial indexing and loaded
 from disk on subsequent runs.
 """
 
-import os
 import logging
 from pathlib import Path
 from typing import List, Optional
@@ -16,12 +15,12 @@ from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from .embeddings import get_embeddings
+from .config import VECTOR_STORE_DIR, VECTOR_STORE_NAME
 
 logger = logging.getLogger(__name__)
 
-# Default paths
-VECTOR_STORE_DIR = Path(__file__).parent.parent / "vector_store"
-STORE_NAME = "medphys_rag"
+# Default paths (single source of truth in src/config.py)
+STORE_NAME = VECTOR_STORE_NAME
 
 
 def get_store_path(store_name: str = STORE_NAME) -> Path:
