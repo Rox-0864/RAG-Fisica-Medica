@@ -2,11 +2,17 @@
 Prompt templates for bilingual medical physics RAG.
 
 The document is in English, but answers must be in Spanish.
-The prompt instructs the LLM to:
-1. Use ONLY the provided context (no hallucination)
-2. Translate and explain concepts in Spanish
-3. Cite page numbers when possible
-4. Use proper medical physics terminology
+Two prompts drive the pipeline:
+
+1. SYSTEM_TEMPLATE — the QA prompt. It instructs the LLM to answer using
+   ONLY the provided context (no hallucination), in Spanish, citing pages.
+   It has a single placeholder `{context}` which the document-combining
+   chain fills with the retrieved chunks.
+
+2. CONDENSE_TEMPLATE — the history-aware prompt. Given the chat history and
+   the latest question, it reformulates the question into a standalone
+   query before retrieval (so follow-ups like "¿y qué pasa con el T2?"
+   become self-contained).
 """
 
 SYSTEM_TEMPLATE = """You are an expert AI assistant specialized in medical physics and diagnostic imaging. Your knowledge comes EXCLUSIVELY from the book "Essential Physics of Medical Imaging".
@@ -28,10 +34,9 @@ RESPONSE STYLE:
 
 DOCUMENT CONTEXT:
 {context}
+"""
 
-CONVERSATION HISTORY:
-{chat_history}
+CONDENSE_TEMPLATE = """Given the conversation history and the latest user question, rephrase the question into a standalone question that can be understood without the chat history.
 
-QUESTION: {question}
+Do NOT answer the question — only reformulate it. Preserve the language of the original question (Spanish)."""
 
-Answer in Spanish using only the provided context:"""
