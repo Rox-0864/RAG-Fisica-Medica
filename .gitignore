@@ -29,6 +29,9 @@ data/*.txt
 .DS_Store
 Thumbs.db
 
+# Local tooling cache (skill registry)
+.atl/
+
 # Streamlit
 .streamlit/secrets.toml
 TUTORIAL-GCP-VM.md
